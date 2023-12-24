@@ -1,18 +1,19 @@
 from flask import Flask
 from flask_restful import Resource, Api, reqparse
-
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 api = Api(app)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///sqlite.db"
+db = SQLAlchemy(app)
 
-todos  = {
-    1: {'task': 'write hello world program', 'summary': 'write the code using python'},
-    2: {'task': 'write hello world program', 'summary': 'write the code using javascript'},
-    3: {'task': 'write hello world program', 'summary': 'write the code using java'},
-    4: {'task': 'write hello world program', 'summary': 'write the code using c'},
-    5: {'task': 'write hello world program', 'summary': 'write the code using c++'},
+class TodoModel(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    task = db.Column(db.String(200), nullable=False)
+    summary = db.Column(db.String(500), nullable=False)
 
-}
+# with app.app_context():
+#     db.create_all()
 
 task_post_args = reqparse.RequestParser()
 task_post_args.add_argument('task', type=str, help='Task is required', required=True)
