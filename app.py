@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_restful import Resource, Api, reqparse, abort, fields, marshal_with
 from flask_sqlalchemy import SQLAlchemy
 
@@ -26,21 +26,58 @@ resource_fields = {
 }
 
 class TodosList(Resource):
+    @marshal_with(resource_fields)
     def get(self):
-        return todos
-    
+        result = TodoModel.query.all()
+        return result
+    @marshal_with(resource_fields)
     def post(self):
         args = task_post_args.parse_args()
-        todo_id = int(max(todos.keys())) + 1
-        todos[todo_id] = {
-            'task': args['task'],
-            'summary': args['summary']
-        }
-        return todos[todo_id], 201
+        todo = TodoModel(task=args['task'], summary=args['summary'])
+        db.session.add(todo)
+        db.session.commit()
+        return todo, 201
 
 class ToDo(Resource):
+    @marshal_with(resource_fields)
     def get(self, todo_id):
-        return {todo_id: todos[todo_id]}
+        result = TodoModel.query.filter_by(id=todo_id).first()
+        if not result:
+            return jsonify({
+                'status': 404,
+                'message': 'Not found'
+            }), 404
+        return result
+    @marshal_with(resource_fields)
+    def put(self, todo_id):
+        args = task_post_args.parse_args()
+        result = TodoModel.query.filter_by(id=todo_id).first()
+        if not result:
+            return jsonify({
+                'status': 404,
+                'message': 'Not found'
+            }), 404
+        result.task = args['task']
+        result.summary = args['summary']
+        db.session.commit()
+        return result
+    
+    def delete(self, todo_id):
+        result = TodoModel.query.filter_by(id=todo_id).first()
+        if not result:
+            return jsonify({
+                'status': 404,
+                'message': 'Not found'
+            }), 404
+        db.session.delete(result)
+        db.session.commit()
+        return jsonify({
+            'status': 204,
+            'message': 'Deleted'
+        }), 204
+
+    
+
     
     
 
