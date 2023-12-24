@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_restful import Resource, Api, reqparse
+from flask_restful import Resource, Api, reqparse, abort, fields, marshal_with
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -18,6 +18,12 @@ class TodoModel(db.Model):
 task_post_args = reqparse.RequestParser()
 task_post_args.add_argument('task', type=str, help='Task is required', required=True)
 task_post_args.add_argument('summary', type=str, help='Summary is required', required=True)
+
+resource_fields = {
+    'id': fields.Integer,
+    'task': fields.String,
+    'summary': fields.String
+}
 
 class TodosList(Resource):
     def get(self):
