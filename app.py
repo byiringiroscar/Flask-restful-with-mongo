@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from flask_restful import Resource, Api, reqparse, abort, fields, marshal_with
 from flask_mongoengine import MongoEngine
 
+
 app = Flask(__name__)
 api = Api(app)
 app.config['MONGODB_SETTINGS'] = {
@@ -11,20 +12,17 @@ app.config['MONGODB_SETTINGS'] = {
 }
 db = MongoEngine(app)
 
-class TodoModel(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    task = db.Column(db.String(200), nullable=False)
-    summary = db.Column(db.String(500), nullable=False)
-
-# with app.app_context():
-#     db.create_all()
+class TodoModel(db.Document):
+    _id = db.IntField(primary_key=True)
+    task = db.StringField(required=True)
+    summary = db.StringField(required=True)
 
 task_post_args = reqparse.RequestParser()
 task_post_args.add_argument('task', type=str, help='Task is required', required=True)
 task_post_args.add_argument('summary', type=str, help='Summary is required', required=True)
 
 resource_fields = {
-    'id': fields.Integer,
+    '_id': fields.Integer,
     'task': fields.String,
     'summary': fields.String
 }
@@ -32,50 +30,38 @@ resource_fields = {
 class TodosList(Resource):
     @marshal_with(resource_fields)
     def get(self):
-        result = TodoModel.query.all()
+        result = TodoModel.objects.all()
         return result
     @marshal_with(resource_fields)
     def post(self):
         args = task_post_args.parse_args()
-        todo = TodoModel(task=args['task'], summary=args['summary'])
-        db.session.add(todo)
-        db.session.commit()
-        return todo, 201
+        todo = TodoModel(task=args['task'], summary=args['summary']).save()
+        id_ = todo._id
+        return {'id': str(id_)}, 201
+
 
 class ToDo(Resource):
     @marshal_with(resource_fields)
     def get(self, todo_id):
-        result = TodoModel.query.filter_by(id=todo_id).first()
+        result = TodoModel.objects.get(_id=todo_id)
         if not result:
-            return jsonify({
-                'status': 404,
-                'message': 'Not found'
-            }), 404
+            abort(404, message='Could not find task with that id')
         return result
     @marshal_with(resource_fields)
     def put(self, todo_id):
         args = task_post_args.parse_args()
-        result = TodoModel.query.filter_by(id=todo_id).first()
+        result = TodoModel.objects.get(_id=todo_id)
         if not result:
-            return jsonify({
-                'status': 404,
-                'message': 'Not found'
-            }), 404
-        result.task = args['task']
-        result.summary = args['summary']
-        db.session.commit()
-        return result
+            abort(404, message='Could not find task with that id')
+        result.update(task=args['task'], summary=args['summary'])
+        return '{} updated '.format(todo_id), 200
     
     def delete(self, todo_id):
-        result = TodoModel.query.filter_by(id=todo_id).first()
+        result = TodoModel.objects.get(_id=todo_id)
         if not result:
-            return jsonify({
-                'status': 404,
-                'message': 'Not found'
-            }), 404
-        db.session.delete(result)
-        db.session.commit()
-        return '', 204
+            abort(404, message='Could not find task with that id')
+        result.delete()
+        return '{} deleted '.format(todo_id), 200
 
     
 
