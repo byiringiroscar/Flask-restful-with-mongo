@@ -14,12 +14,17 @@ todos  = {
 
 }
 
+class TodosList(Resource):
+    def get(self):
+        return todos
+
 class ToDo(Resource):
     def get(self, todo_id):
         return {todo_id: todos[todo_id]}
     
 
 api.add_resource(ToDo,  '/todos/<int:todo_id>')
+api.add_resource(TodosList, '/todos')
 
 
 if __name__ == '__main__':
