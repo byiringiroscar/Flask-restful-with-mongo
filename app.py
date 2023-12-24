@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from flask_restful import Resource, Api, reqparse, abort, fields, marshal_with
 from flask_mongoengine import MongoEngine
+import mongoengine as me
 
 
 app = Flask(__name__)
