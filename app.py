@@ -1,11 +1,13 @@
 from flask import Flask, jsonify
 from flask_restful import Resource, Api, reqparse, abort, fields, marshal_with
-from flask_sqlalchemy import SQLAlchemy
+from flask_mongoengine import MongoEngine
 
 app = Flask(__name__)
 api = Api(app)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///sqlite.db"
-db = SQLAlchemy(app)
+app.config['MONGODB_SETTINGS'] = {
+    "db": "myapp",
+}
+db = MongoEngine(app)
 
 class TodoModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
