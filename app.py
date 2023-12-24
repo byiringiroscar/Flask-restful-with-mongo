@@ -5,7 +5,9 @@ from flask_mongoengine import MongoEngine
 app = Flask(__name__)
 api = Api(app)
 app.config['MONGODB_SETTINGS'] = {
-    "db": "myapp",
+    "db": "todomodel",
+    "host": "localhost",
+    "port": 27017,
 }
 db = MongoEngine(app)
 
