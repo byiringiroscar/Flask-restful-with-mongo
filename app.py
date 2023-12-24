@@ -71,10 +71,7 @@ class ToDo(Resource):
             }), 404
         db.session.delete(result)
         db.session.commit()
-        return jsonify({
-            'status': 204,
-            'message': 'Deleted'
-        }), 204
+        return '', 204
 
     
 
