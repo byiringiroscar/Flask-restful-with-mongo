@@ -5,18 +5,21 @@ from flask_restful import Resource, Api
 app = Flask(__name__)
 api = Api(app)
 
+todos  = {
+    1: {'task': 'write hello world program', 'summary': 'write the code using python'},
+    2: {'task': 'write hello world program', 'summary': 'write the code using javascript'},
+    3: {'task': 'write hello world program', 'summary': 'write the code using java'},
+    4: {'task': 'write hello world program', 'summary': 'write the code using c'},
+    5: {'task': 'write hello world program', 'summary': 'write the code using c++'},
 
-class HelloWorld(Resource):
-    def get(self):
-        return {'hello': 'world'}
+}
 
+class ToDo(Resource):
+    def get(self, todo_id):
+        return {todo_id: todos[todo_id]}
+    
 
-class HelloName(Resource):
-    def get(self, name): 
-        return {'data': 'Hello, {}'.format(name)}
-
-api.add_resource(HelloWorld, '/helloworld')
-api.add_resource(HelloName, '/helloname/<string:name>')
+api.add_resource(ToDo,  '/todos/<int:todo_id>')
 
 
 if __name__ == '__main__':
