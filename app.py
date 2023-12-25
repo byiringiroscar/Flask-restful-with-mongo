@@ -22,7 +22,7 @@ task_post_args.add_argument('task', type=str, help='Task is required', required=
 task_post_args.add_argument('summary', type=str, help='Summary is required', required=True)
 
 resource_fields = {
-    # '_id': fields.Integer,
+    'id': fields.String,
     'task': fields.String,
     'summary': fields.String
 }
@@ -71,7 +71,7 @@ class ToDo(Resource):
     
     
 
-api.add_resource(ToDo,  '/todos/<int:todo_id>')
+api.add_resource(ToDo,  '/todos/<string:todo_id>')
 api.add_resource(TodosList, '/todos')
 
 
