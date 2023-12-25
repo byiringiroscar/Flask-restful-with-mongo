@@ -5,16 +5,15 @@ import mongoengine as me
 
 
 app = Flask(__name__)
-api = Api(app)
 app.config['MONGODB_SETTINGS'] = {
     "db": "todomodel",
     "host": "localhost",
     "port": 27017,
 }
+api = Api(app)
 db = MongoEngine(app)
 
 class TodoModel(db.Document):
-    _id = db.IntField(primary_key=True)
     task = db.StringField(required=True)
     summary = db.StringField(required=True)
 
@@ -31,14 +30,15 @@ resource_fields = {
 class TodosList(Resource):
     @marshal_with(resource_fields)
     def get(self):
-        result = TodoModel.objects.all()
-        return result
+        #get all data
+        results = TodoModel.objects.all()
+        serialized_results = [result for result in results]
+        return serialized_results
     @marshal_with(resource_fields)
     def post(self):
         args = task_post_args.parse_args()
         todo = TodoModel(task=args['task'], summary=args['summary']).save()
-        id_ = todo._id
-        return {'id': str(id_)}, 201
+        return todo, 201
 
 
 class ToDo(Resource):
