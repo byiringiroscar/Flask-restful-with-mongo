@@ -50,14 +50,16 @@ class ToDo(Resource):
         except:
             abort(404, message='Could not find task with that id')
 
-    @marshal_with(resource_fields)
+    # @marshal_with(resource_fields)
     def put(self, todo_id):
         args = task_post_args.parse_args()
         result = TodoModel.objects.get(id=todo_id)
         if not result:
             abort(404, message='Could not find task with that id')
         result.update(task=args['task'], summary=args['summary'])
-        return '{} updated '.format(todo_id), 200
+        return {
+            'message': 'Task updated successfully'
+        }, 200
     
     def delete(self, todo_id):
         result = TodoModel.objects.get(_id=todo_id)
