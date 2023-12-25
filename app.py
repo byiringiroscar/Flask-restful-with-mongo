@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from flask_restful import Resource, Api, reqparse, abort, fields, marshal_with
 from flask_mongoengine import MongoEngine
 import mongoengine as me
+from bson import ObjectId
 
 
 app = Flask(__name__)
@@ -22,7 +23,7 @@ task_post_args.add_argument('task', type=str, help='Task is required', required=
 task_post_args.add_argument('summary', type=str, help='Summary is required', required=True)
 
 resource_fields = {
-    '_id': fields.Integer,
+    # '_id': fields.Integer,
     'task': fields.String,
     'summary': fields.String
 }
@@ -44,14 +45,16 @@ class TodosList(Resource):
 class ToDo(Resource):
     @marshal_with(resource_fields)
     def get(self, todo_id):
-        result = TodoModel.objects.get(_id=todo_id)
-        if not result:
+        try:
+            result = TodoModel.objects.get(id=todo_id)
+            return result
+        except:
             abort(404, message='Could not find task with that id')
-        return result
+
     @marshal_with(resource_fields)
     def put(self, todo_id):
         args = task_post_args.parse_args()
-        result = TodoModel.objects.get(_id=todo_id)
+        result = TodoModel.objects.get(id=todo_id)
         if not result:
             abort(404, message='Could not find task with that id')
         result.update(task=args['task'], summary=args['summary'])
