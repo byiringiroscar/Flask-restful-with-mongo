@@ -62,11 +62,13 @@ class ToDo(Resource):
         }, 200
     
     def delete(self, todo_id):
-        result = TodoModel.objects.get(_id=todo_id)
+        result = TodoModel.objects.get(id=todo_id)
         if not result:
             abort(404, message='Could not find task with that id')
         result.delete()
-        return '{} deleted '.format(todo_id), 200
+        return {
+            'message': 'Task Deleted successfully'
+        }, 200
 
     
 
