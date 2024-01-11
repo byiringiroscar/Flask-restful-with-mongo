@@ -1,3 +1,4 @@
+from flask_swagger_ui import get_swaggerui_blueprint
 from flask import Flask, jsonify
 from flask_restful import Resource, Api, reqparse, abort, fields, marshal_with
 from flask_mongoengine import MongoEngine
@@ -5,6 +6,18 @@ import mongoengine as me
 
 
 app = Flask(__name__)
+### swagger specific ###
+SWAGGER_URL = '/swagger'
+API_URL = '/static/swagger.json'
+SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={
+        'app_name': "Seans-Python-Flask-REST-Boilerplate"
+    }
+)
+app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
+### end swagger specific ###
 app.config['MONGODB_SETTINGS'] = {
     "db": "todomodel",
     "host": "localhost",
